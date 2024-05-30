@@ -1,0 +1,11 @@
+com\scorpios\faceai\service\IUserService.class
+com\scorpios\faceai\config\BaiduConfig.class
+com\scorpios\faceai\SpringbootFaceAiApplication.class
+com\scorpios\faceai\service\impl\UserServiceImpl.class
+com\scorpios\faceai\controller\LoginController.class
+com\scorpios\faceai\entity\Result.class
+com\scorpios\faceai\entity\Users.class
+com\scorpios\faceai\config\DBConfig.class
+com\scorpios\faceai\entity\MD5Utils.class
+com\scorpios\faceai\repository\UserRepository.class
+com\scorpios\faceai\controller\UsersController.class

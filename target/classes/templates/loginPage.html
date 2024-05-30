@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style type="text/css">
+        *{margin: 0;padding: 0;}
+        html,body{width: 100%;height: 100%;background: #F5F6F7}
+        /* 遮罩层 */
+        #overlay {
+            position: fixed;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 100%;
+            font-size: 16px;
+            /* IE9以下不支持rgba模式 */
+            background-color: rgba(0, 0, 0, 0.5);
+            /* 兼容IE8及以下 */
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#7f000000,endColorstr=#7f000000);
+            display: none;
+        }
+        /* 弹出框主体 */
+        .popup {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-content: center;
+            background-color: #ffffff;
+            width: 800px;
+            height: 600px;
+            border-radius: 8px;
+            margin: 100px auto;
+            text-align: center;
+        }
+        /* 弹出框的标题 */
+        .popup_title {
+            height: 60px;
+            line-height: 60px;
+            border-bottom: solid 1px #cccccc;
+            font-size: x-large;
+
+        }
+        /* 弹出框的内容 */
+        .popup_content {
+            height: 400px;
+            padding: 15px 20px;
+        }
+        /* 弹出框的按钮栏 */
+        .popup_btn {
+            display: flex;
+            justify-content: flex-end;
+            width: 100%;
+            padding-bottom: 10px;
+        }
+        /* 弹出框的按钮 */
+        .popup_btn button {
+            height: 40px;
+            width: 60px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 5px 10px;
+        }
+        .cancelBtn {
+            background-color: #ffffff;
+            color: #111111;
+            border : solid 1px #444444;
+        }
+        .confirmBtn {
+            background-color: #356efd;
+            color: #eeeeee;
+            border : solid 1px #356efd;
+        }
+        .incorrect:before {
+            /*叉*/
+            content: '\2716';
+            /*    勾*/
+            /*    content: '\2714';*/
+        }
+    </style>
+</head>
+<body>
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center">
+        <h1 style="margin-top: 12%; margin-bottom: 5%">员工管理系统</h1>
+        <div style="display: flex; width: 35%; min-width: 250px">
+            <h2 style=" min-width: 113px; width: 25%"> 用户名： </h2>
+            <input style="width:73%" type="text" name="username" id="username"/>
+        </div>
+        <div style="display: flex; width: 35%; min-width: 250px; margin-top: 35px">
+            <h2 style="min-width: 113px;  width: 25%"> 密码： </h2>
+            <input style="width:73%" type="password" name="password" id="password"/>
+        </div>
+        <div style="margin-top: 50px">
+            <button id="register" style="width: 30%; min-width: 200px; height: 40px; margin-top: 15px;  background: #356EFD; color: white; border: none; border-radius: 5px; font-size: large; cursor: pointer">注册</button>
+            <button id="login" onclick="handleLogin()" style="width: 30%; min-width: 200px; height: 40px; margin-top: 15px; margin-left: 35px; background: #356EFD; color: white; border: none; border-radius: 5px; font-size: large; cursor: pointer">登录</button>
+        </div>
+        <div id="overlay">
+            <div class="popup">
+                <div style="display: flex; justify-content: space-between; width: 100%; background: #356EFD">
+                    <div></div>
+                    <p class="popup_title">确认登录面部信息</p>
+                    <span onclick="hidePopup()" class="status incorrect" style="margin-right: 10px; margin-top: 10px; cursor: pointer;"></span>
+                </div>
+
+                <div class="popup_content">
+                    <div class="media">
+                        <video id="video" width="500" height="400" src="" autoplay></video>
+                        <!--画布不在页面显示-->
+                        <canvas id="canvas" width="500" height="400" style=" display: none;" ></canvas>
+                    </div>
+                </div>
+                <div class="popup_btn">
+                    <button class="cancelBtn" onclick="hidePopup()">关闭</button>
+                    <button class="confirmBtn" onclick="goLogin()">确认</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<!--    <script type="text/javascript" src="js/jquery-3.3.1.js"></script>-->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript">
+        let username = '';
+        let password = '';
+        let userContext = null;
+        //点击按钮注册事件
+        var handleRegister = document.getElementById("register");
+        handleRegister.onclick = function () {
+            //跳转至注册页面
+            window.location.href="register";
+        }
+        //点击按钮登录事件
+        function handleLogin() {
+            username = $("#username").val();
+            password = $("#password").val();
+            // let hash = hashStringToInt(password)
+            // console.log(password, hash);
+            // return;
+            if( username == null || username === "" || username === undefined ){
+                alert("请输入用户名");
+                return;
+            }
+            if( password == null || password === "" || password === undefined ){
+                alert("请输入密码");
+                return;
+            }
+            if ( password.length >= 16 ){
+                alert("密码长度不能超过16位");
+                return;
+            }
+            showPopup();
+            /**调用摄像头，获取媒体视频流**/
+            var video = document.getElementById('video');
+            //返回画布二维画图环境
+            userContext = canvas.getContext("2d");
+            var getUserMedia =
+                //浏览器兼容,表示在火狐、Google、IE等浏览器都可正常支持
+                (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia)
+            //getUserMedia.call(要调用的对象，约束条件，调用成功的函数，调用失败的函数)
+            getUserMedia.call(navigator,{video: true,audio: false},function(localMediaStream){
+                //获取摄像头捕捉的视频流
+                video.srcObject=localMediaStream;
+            },function(e){
+                console.log("获取摄像头失败！！")
+            });
+        }
+        function hashStringToInt(str) {
+            let hash = "";
+            let firstCode = 13;
+            for (let i = 0; i < str.length; i++) {
+                let nowCode = str.charCodeAt(i);
+                let code = (firstCode + nowCode)%255;
+                firstCode = code;
+                hash += code.toString(16);
+            }
+            return hash;
+        }
+        function showPopup(){
+            const overlay = document.getElementById("overlay");
+            overlay.style.display = "block";
+        }
+        function hidePopup(){
+            const overlay = document.getElementById("overlay");
+            overlay.style.display = "none";
+        }
+        function goLogin(){
+            if(username != null){
+                //点击按钮时拿到登录者面部信息
+                userContext.drawImage(video,0,0,500,400);
+                const userImgSrc = document.getElementById("canvas").toDataURL("img/png");
+                //拿到bash64格式的照片信息
+                const faceBase = userImgSrc.split(",")[1];
+                //ajax异步请求
+                $.ajax({
+                    url: "/api/login",
+                    type: "post",
+                    data: {
+                        "faceBase": faceBase,
+                        "userName": username,
+                        "password": hashStringToInt(password)
+                    },
+                    success: function(result){
+                        console.log('返回消息：', result);
+                        if(result.result){
+                            alert(result.message);
+                            localStorage.setItem('user',username);
+                            window.location.href="/page/userInfo";
+                        }else{
+                            alert(result.message);
+                        }
+                    }
+                })
+            }else{
+                alert("用户名不能为空");
+            }
+        }
+    </script>
+
+</body>
+</html>
